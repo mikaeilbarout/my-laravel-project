@@ -39,6 +39,8 @@
             letter-spacing: 2px;
             flex-grow: 1;
             text-align: center;
+            font-family:'Tahoma';
+            color: #ffffff
         }
 
         /* Navigation links */

@@ -3,16 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // Essential for secure authentication
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
     // 1. Show login form (GET)
     public function showLoginForm()
     {
-        // If user is already logged in, redirect to dashboard
+        // If the user is already logged in, redirect them directly to the dashboard
         if (Auth::check()) {
-            return redirect('/dashboard');
+            return redirect()->route('dashboard');
         }
 
         return view('login');
@@ -21,37 +21,38 @@ class LoginController extends Controller
     // 2. Handle login request (POST)
     public function login(Request $request)
     {
-        // Validate input credentials
+        //  Double check: If the user logged in mid-way, send them to the dashboard
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+
+        // Input validation
         $credentials = $request->validate([
             'email'    => 'required|email',
             'password' => 'required',
         ]);
 
-        // Attempt to authenticate user
+        // Attempt authentication
         if (Auth::attempt($credentials)) {
-            // Prevent session fixation attack
             $request->session()->regenerate();
 
-            // Redirect to intended page or dashboard
             return redirect()->intended('/dashboard');
         }
 
-        // If authentication fails, return with error
+        // If credentials do not match
         return back()->withErrors([
             'email' => 'Invalid email or password.',
         ])->onlyInput('email');
     }
 
-    // 3. Logout user
+    // 3. Logout user (POST)
     public function logout(Request $request)
     {
-        // Log the user out
         Auth::logout();
 
-        // Invalidate session and regenerate CSRF token
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect()->route('login');
     }
 }

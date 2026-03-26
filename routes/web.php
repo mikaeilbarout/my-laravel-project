@@ -30,9 +30,8 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 // ------------------------
 // Login routes
 // ------------------------
-Route::get('/login', function () {
-    return view('login');
-})->name('login.form');
+
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 
 Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
 
@@ -54,5 +53,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // User Resume Details (Public Profile)
-    Route::get('/user/{id}', [UserController::class, 'show'])->name('show');
+    
 });
+
+Route::get('/user/{id}', [UserController::class, 'show'])->name('show');
