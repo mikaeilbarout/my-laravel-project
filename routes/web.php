@@ -11,7 +11,7 @@ use App\Http\Controllers\SearchController;
 // ------------------------
 // Home page (with search)
 // ------------------------
-Route::get('/', [UserController::class, 'home'])->name('home');
+Route::get('/', [ResumeController::class, 'home'])->name('home');
 
 // ------------------------
 // Search functionality

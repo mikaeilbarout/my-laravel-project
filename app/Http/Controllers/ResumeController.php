@@ -9,14 +9,31 @@ use Illuminate\Support\Facades\Auth;
 class ResumeController extends Controller
 {
     /**
-     * 1. Show homepage (list of all public resumes)
+     * 1. Show homepage (list of all users/resumes with search)
      */
-    public function home()
+    public function home(Request $request) 
     {
-        // Get users who have at least a skill or bio filled (valid resumes)
-        $resumes = User::whereNotNull('main_skill')
-            ->orWhereNotNull('bio')
-            ->get();
+        $skill = $request->input('query'); 
+
+      
+        if ($skill) {
+            $resumes = User::where('main_skill', 'LIKE', "%{$skill}%")->get();
+
+            
+            if ($resumes->count() === 1) {
+                return redirect()->route('show', ['id' => $resumes->first()->id]);
+            }
+
+            
+            if ($resumes->count() === 0) {
+                return redirect()->back()->with('error', 'No users found with this skill.');
+            }
+
+            
+        } else {
+            
+            $resumes = User::all();
+        }
 
         return view('home', compact('resumes'));
     }
@@ -50,7 +67,7 @@ class ResumeController extends Controller
         // Get current authenticated user
         $user = Auth::user();
 
-        //  Validate input data for security
+        // Validate input data for security
         $request->validate([
             'name'        => 'required|string|max:100',
             'education'   => 'nullable|string|max:150',
@@ -62,7 +79,7 @@ class ResumeController extends Controller
             'bio.max'       => 'Bio must not exceed 1000 characters.',
         ]);
 
-        //  Update user resume fields
+        // Update user resume fields
         $user->update([
             'name'        => $request->name,
             'education'   => $request->education,
@@ -72,6 +89,6 @@ class ResumeController extends Controller
 
         // Redirect back to dashboard with success message
         return redirect('/dashboard')
-            ->with('success', '✅ Your resume has been updated successfully!');
+            ->with('success', ' Your resume has been updated successfully!');
     }
 }
